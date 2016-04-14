@@ -3,7 +3,7 @@ Mapquery 0.1.0 is a proof-of-concept prototype release. All of the work on the p
 
 Mapquery is a map data storage and retrieval API built on [Express](https://github.com/expressjs/express) and [PostGIS](http://postgis.net/).
 
-**Table of contents**
+### Table of contents
 
 - [Installation](https://github.com/Quartz/mapquery#installation)
 - [Running Mapquery](https://github.com/Quartz/mapquery#running-mapquery)
