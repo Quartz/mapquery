@@ -3,6 +3,8 @@ Mapquery 0.1.0 is a proof-of-concept prototype release. All of the work on the p
 
 Mapquery is a map data storage and retrieval API built on [Express](https://github.com/expressjs/express) and [PostGIS](http://postgis.net/). When you import a shapefile to mapquery, you can export what you want from it quickly--along with sizing and positioning information to fit any viewport. And once your map data lives in Mapquery, you’ll never have to go looking for that shapefile again.
 
+![Mapquery Screenshots](http://data.qz.com/2016/static-images/mapquery-github/screens.png)
+
 ### Table of contents
 
 - [Installation](https://github.com/Quartz/mapquery#installation)
