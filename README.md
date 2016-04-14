@@ -1,7 +1,7 @@
 # Mapquery by Quartz
 Mapquery 0.1.0 is a proof-of-concept prototype release. All of the work on the project leading to this initial release was funded by the [Knight Foundation's Prototype Fund](http://www.knightfoundation.org/funding-initiatives/knight-prototype-fund/).
 
-Mapquery is a map data storage and retrieval API build on [Express](https://github.com/expressjs/express) and [PostGIS](http://postgis.net/).
+Mapquery is a map data storage and retrieval API built on [Express](https://github.com/expressjs/express) and [PostGIS](http://postgis.net/).
 
 **Table of contents**
 
