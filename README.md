@@ -41,7 +41,7 @@ Or if you prefer to use pgAdmin: Click on the SQL button at the top of pgAdmin. 
 
 - Download the Mapquery starter pack database dump from [here](https://s3.amazonaws.com/qz-files/mapquery.dump)
 - Restore the dump file to your database `$ pg_restore --verbose --clean --no-acl --no-owner -h localhost -U YOUR_LOCAL_USERNAME -d mapquery /PATH/TO/mapquery.dump`
-- In `mapquery/settings.js`, update the database connection settings to match your own:
+- In `settings.js`, update the database connection settings to match your own:
 ```js
 module.exports = {
   'd': 'mapquery', // database name
