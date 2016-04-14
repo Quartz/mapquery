@@ -1,0 +1,73 @@
+extends layout
+
+block content
+  h1 Import
+  p Start by selecting shape data to import. We currently only support imports of data compressed in a <span class='bold'>.zip</span> file, which must include <span class='bold'>.shp</span> and <span class='bold'>.dbf</span> files. The import may take up to a minute.
+  form(action="/import/import-map", method="post", enctype="multipart/form-data")
+    .control-row
+      label.control-button(for="file-upload") Select file to import
+      input.control-hidden(type="file", id="file-upload", name="file-upload")
+      input.control-button(type="submit", value="Upload")
+  
+  if data
+    form(action="/import/save-map-data", method="post")
+      .control-row  
+        h2 Table metadata
+        p Provide some information about the data you're importing.
+        .meta-row
+          .field Map category
+          .field.select-wrap 
+            select(id="table_category",name="table_category")
+              option(value="Countries") Countries
+              option(value="States or provinces") States or Provinces
+              option(value="Interstate units") Interstate units (e.g. counties)
+              option(value="Detail") Detail (e.g. roads, water)
+              option(value="Other") Other (e.g. disputed areas)
+        .meta-row
+          .field Name of table
+          .field 
+            input(type="text",id="table_name",name="table_name",value=data.table_name)
+        .meta-row
+          .field Readable name
+          .field
+            input(type="text",id="table_name_readable",name="table_name_readable")
+        .meta-row
+          .field Description
+          .field 
+            textarea(id="table_description",name="table_description")
+        .meta-row
+          .field Map resolution
+          .field.select-wrap 
+            select(id="table_resolution",name="table_resolution")
+              option(value="1:10m") 1:500,000
+              option(value="1:10m") 1:10 million
+              option(value="1:20m") 1:20 million
+              option(value="1:50m") 1:50 million
+              option(value="1:110m") 1:110 million
+
+        .meta-row
+          .field Data source
+          .field 
+            input(type="text",id="table_source",name="table_source")
+        .meta-row
+          .field Data source URL
+          .field 
+            input(type="text",id="table_source_url",name="table_source_url")
+            input(type="hidden",id="table_shapefile_path",name="table_shapefile_path" value=staticFile)
+
+      .control-row
+        h2 Shapefile fields
+        p Use the dropdowns below to map this shapefile's fields to our metadata table. The format of the options in the dropdowns is <span class='bold'>field \ sample value</span>.
+        
+        each fld in data.flds
+          .meta-row
+            .field #{fld.name}
+            .field.select-wrap 
+              select(id=fld.fld,name=fld.fld)
+                option(value="") Select field      
+                each key, index in data.keys
+                  option(value=key) 
+                    | #{key} \ #{data.vals[index]}
+        .meta-row
+          .field 
+            input.control-button(type="submit",value="Save")

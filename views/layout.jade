@@ -1,0 +1,21 @@
+doctype html
+html
+  head
+    title= title
+    link(href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2-rc.1/css/select2.min.css",rel="stylesheet")
+    link(rel='stylesheet', href='/stylesheets/fonts.css')
+    link(rel='stylesheet', href='/stylesheets/index.css')
+  body
+    include nav
+    div.mq-container
+      if error
+        include error_message
+      block content
+  script(src="//d3js.org/d3.v3.min.js")
+  script(src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.6.19/topojson.min.js")
+  script(src="//cdnjs.cloudflare.com/ajax/libs/d3-geo-projection/0.2.15/d3.geo.projection.min.js")
+  script(src="//cdnjs.cloudflare.com/ajax/libs/queue-async/1.0.7/queue.min.js")
+  script(src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js")
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2-rc.1/js/select2.min.js")
+  script(src="/javascripts/FileSaver.min.js")
+  script(src="/javascripts/index.js")

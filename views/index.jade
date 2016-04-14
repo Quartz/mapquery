@@ -1,0 +1,39 @@
+extends layout
+
+block content
+  div.map-preview#map
+  div.search-container
+    h1 Search Mapquery
+    
+    p Start by selecting the <span class="bold">table</span> you want to make a map with.
+    #select1
+    p Then select <span class="bold">units</span> from within that table
+    #select2
+    p Choose a <span class="bold">projection</span> that best displays your map
+    #select3
+    
+    p Select <span class="bold">details</span> to include. (Roads, etc. disabled in prototype release.)
+    #details
+      <label class="enabled"><input type="checkbox" checked="checked" id="graticule" value="1"><span>Graticules</span></label>
+
+    br
+    
+    p Select <span class="bold">data output</span> type
+    #options
+      input(type="radio", name="datatype", value="geojson",checked="checked")
+      span.radio-label Geojson
+      input(type="radio", name="datatype", value="topojson")
+      span.radio-label Topojson
+
+    #controls
+      center
+        p
+          .control-button#get-map Get Map
+
+    h1 Output
+    p Call this <span class="bold">URL</span> to load this map. Note that the width and height can be adjusted.
+    .preformat#urlstring
+    p Alternatively, this map can be <span class="bold">downloaded</span>
+    #download-buttons
+      .control-button#download-data Download Data
+      .control-button#download-svg Download SVG
