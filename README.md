@@ -13,6 +13,7 @@ Mapquery is a map data storage and retrieval API built on [Express](https://gith
   - [/api/geometry-collection](https://github.com/Quartz/mapquery#apigeometry-collection)
   - [/api/table-data](https://github.com/Quartz/mapquery#apitable-data)
   - [/api/units-by-table](https://github.com/Quartz/mapquery#apiunits-by-table)
+- [d3 example](https://github.com/Quartz/mapquery#d3-example)
 
 ## Installation
 
@@ -232,4 +233,40 @@ Result:
   "subregion":["Caribbean","Southern Asia","Southern Europe","Western Asia","Middle Africa","Northern Europe","South America","Polynesia","Antarctica","Australia and New Zealand","Seven seas (open ocean)","Western Europe","Eastern Africa","Western Africa","Eastern Europe","Central America","Northern America","Southern Africa","South-Eastern Asia","Eastern Asia","Central Asia","Northern Africa","Melanesia","Micronesia"],
   "name":[ALL COUNTRIES...]
 }
+```
+
+## d3 example
+
+This example calls the Mapquery API as if it's running locally. Alternatively, you can download Mapquery's output from the front-end interface and load the static file.
+
+```js
+var width = 940;
+var height = 500;
+var svg = d3.select(".map-preview").html("").append("svg:svg")
+  .attr("width", width)
+  .attr("height", height);
+d3.json("http://localhost:3000/api/feature-collection?table=ne_50m_admin_0_countries&proj=kavrayskiy7&datatype=topojson&width="+width+"&height="+height,function(error,result){
+  
+  var data = result.data;
+  
+  // when you call api/feature-collection,
+  // Mapquery determines the appropriate scale and position
+  var projection = d3.geo[data.projection]()
+    .scale(data.scale)
+    .translate(data.translate);
+
+  var path = d3.geo.path()
+    .projection(projection);
+
+  // for topojson
+  var units = data.map.objects.features;
+  // for geojson, use data.map.features;
+
+  svg.selectAll(".units")
+    .data(units)
+    .enter().append("path")
+    .attr("class","units")
+    .attr("id",function(d) { return d.properties.name })
+    .attr("d", path);
+});
 ```
