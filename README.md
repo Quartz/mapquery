@@ -242,7 +242,7 @@ This example calls the Mapquery API as if it's running locally. Alternatively, y
 ```js
 var width = 940;
 var height = 500;
-var svg = d3.select(".map-preview").html("").append("svg:svg")
+var svg = d3.select("body").append("svg:svg")
   .attr("width", width)
   .attr("height", height);
 d3.json("http://localhost:3000/api/feature-collection?table=ne_50m_admin_0_countries&proj=kavrayskiy7&datatype=topojson&width="+width+"&height="+height,function(error,result){
