@@ -22,24 +22,6 @@ hgroup,
 main,
 nav,
 section,
-summary {
-  display: block;
-}
-audio,
-canvas,
-progress,
-video {
-  display: inline-block;
-  vertical-align: baseline;
-}
-audio:not([controls]) {
-  display: none;
-  height: 0;
-}
-[hidden],
-template {
-  display: none;
-}
 a {
   background: transparent;
 }
@@ -403,6 +385,9 @@ label.enabled span {
 .bold {
   font-family: 'AdelleSans-Bold', "Helvetica", Arial, sans-serif;
   color: #333;
+}
+.map-preview {
+ width: 100%;
 }
 .units {
   stroke: #999;

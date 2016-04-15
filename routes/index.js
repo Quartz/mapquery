@@ -18,6 +18,12 @@ router.get("/import", function(req, res) {
   });
 });
 
+router.get("/examples", function(req, res) { 
+  res.render('examples',{
+    title: "Mapquery Examples"
+  }) 
+});
+
 router.get('/api/feature-collection', db.getFeatureCollection);
 router.get('/api/geometry-collection', db.getGeometry);
 router.get('/api/table-data', db.getAllTableData);

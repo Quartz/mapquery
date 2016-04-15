@@ -104,7 +104,9 @@ function setData(err, tableData, mapData) {
 
   var data = mapData.data;
 
-  var proj = data.projection || "kavrayskiy7";
+  var uniqueFld = (data.table_metadata.fld_identifier) ? data.table_metadata.fld_identifier : "name";
+
+  var proj = (data.projection) ? data.projection : "kavrayskiy7";
 
   var projection = d3.geo[proj]()
     .scale(data.scale)
@@ -138,7 +140,7 @@ function setData(err, tableData, mapData) {
     .data(units)
     .enter().append("path")
     .attr("class","units")
-    .attr("id",function(d) { return d.properties.name })
+    .attr("id",function(d) { return "u"+d.properties[uniqueFld]; })
     .attr("d", path);
 
 
