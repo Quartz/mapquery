@@ -10,7 +10,7 @@ Mapquery is a map data storage and retrieval API built on [Express](https://gith
 - [Installation](https://github.com/Quartz/mapquery#installation)
 - [Running Mapquery](https://github.com/Quartz/mapquery#running-mapquery)
 - [How to import data](https://github.com/Quartz/mapquery#how-to-import-data)
-- [Mapquery Search](https://github.com/Quartz/mapquery#mapquery-search)
+- [Mapquery search](https://github.com/Quartz/mapquery#mapquery-search)
 - [d3 example](https://github.com/Quartz/mapquery#d3-example)
 - [To-do list (and how you can help)](https://github.com/Quartz/mapquery#to-do-list-and-how-you-can-help)
 - [API endpoint reference](https://github.com/Quartz/mapquery#api-endpoint-reference)
@@ -98,7 +98,7 @@ Importing is currently handled through the Mapquery interface. The routes `/impo
     - **Group by:** If you're importing countries from a Natural Earth shapefile, for example, you may select the `continent` and `subregion` columns as your group-by fields. These are primarily for the front-end search function; it allows you to select a continent or subregion to make a map with.
 7. Click "Save"
 
-## Mapqeury Search
+## Mapqeury search
 
 Much of Mapqeury is built around its front-end search feature. We hope its functionality is intuitive and self-explanitory, but there's a bit of philosophy behind how it works. First, we didn't want to hide the database tables from the end-user. When you want to make a map, the first thing you have to consider is what shape data you want to draw from. Once you've selected the table you want, the second dropdown populates based on that table's metadata, providing you in some cases with hundreds of options of units to pull out.
 
