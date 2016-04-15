@@ -28,7 +28,7 @@ Mapquery is a map data storage and retrieval API built on [Express](https://gith
 5. Create a new local Postgres database called `mapquery`. You can run `createdb mapquery` on the command line, or download [pgadmin](http://www.pgadmin.org/download/) and use the GUI. Set your local username as the owner.
 6. Run this on the command line to enable PostGIS:
     ```
-    psql -q map_library -c "
+    psql -q mapquery -c "
     -- Enable PostGIS (includes raster)
     CREATE EXTENSION postgis;
     -- Enable Topology
