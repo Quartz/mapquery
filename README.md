@@ -98,9 +98,9 @@ Importing is currently handled through the Mapquery interface. The routes `/impo
     - **Group by:** If you're importing countries from a Natural Earth shapefile, for example, you may select the `continent` and `subregion` columns as your group-by fields. These are primarily for the front-end search function; it allows you to select a continent or subregion to make a map with.
 7. Click "Save"
 
-## Mapqeury search
+## Mapquery search
 
-Much of Mapqeury is built around its front-end search feature. We hope its functionality is intuitive and self-explanitory, but there's a bit of philosophy behind how it works. First, we didn't want to hide the database tables from the end-user. When you want to make a map, the first thing you have to consider is what shape data you want to draw from. Once you've selected the table you want, the second dropdown populates based on that table's metadata, providing you in some cases with hundreds of options of units to pull out.
+Much of Mapquery is built around its front-end search feature. We hope its functionality is intuitive and self-explanatory, but there's a bit of philosophy behind how it works. First, we didn't want to hide the database tables from the end-user. When you want to make a map, the first thing you have to consider is what shape data you want to draw from. Once you've selected the table you want, the second dropdown populates based on that table's metadata, providing you in some cases with hundreds of options of units to pull out.
 
 We've discussed determining the best projection for the end-user based on the region their selected units fall into, but ultimately decided that _we_ would always want the option to pick our own projection, so assumed that you would, too.
 
