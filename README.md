@@ -164,6 +164,10 @@ The user would query for an address or city, but what would Mapquery return? It 
 
 Adding the option to return centroids could be useful for building cartograms.
 
+### Option to drop imported shapefiles
+
+By default, Mapquery saves imported zip files to the `shapefile-imports` folder. We should add an option on the import page to not keep the imported file, as we're currently not doing anything with them.
+
 ## API endpoint reference
 
 Route definitions can be found in `routes/index.js`; handlers are in `/queries.js`.
