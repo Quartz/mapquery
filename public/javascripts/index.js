@@ -1,3 +1,9 @@
+// 
+// this is the js for the mapquery search page.
+// to see examples for using mapquery,
+// check out public/javascripts/examples.js instead
+// 
+
 var projections = [
   "kavrayskiy7",
   "mercator",

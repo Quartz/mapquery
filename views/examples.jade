@@ -1,11 +1,23 @@
 extends layout
 
 block content
-  div.search-container
-    h1 Mapquery Examples
-    h2 Static SVG
-    p In this example, we've saved a static SVG from the Mapquery Search, embedded it into an HTML document, then bound data on worker gender to each path. See /public/examples.js
+  div.examples-container
+    
+    h1 Three ways you can use Mapquery data
+
+    p The Mapquery search page allows you to output data in several ways. You can save an SVG, save raw map data, or use the API call Mapquery generates based on your search parameters. Here's how you might use each of those output options together with real-world data to make a graphic. See /public/javascripts/examples.js for details.
+
+    h2 Example 1: Bind data to a static SVG
+    p In this example, we've exported a static SVG from the Mapquery search page, loaded the SVG file into an HTML document, then bound data on worker gender to each county path.
     div.map-preview#map-1
-    div.scale#scale-1
-    p
-    p (More to come!)
+    div.example-scale#scale-1
+
+    h2 Example 2: Load data from a static topojson file
+    p In this example, we've saved a static topojson file from Mapquery Search to a json file in the public/data directory.
+    div.map-preview#map-2
+    div.example-scale#scale-2
+
+    h2 Example 3: Load data directly from the API
+    p In this example, we've gotten an API url with query parameters from the Mapquery search page, and are calling data directly from the API.
+    div.map-preview#map-3
+    div.example-scale#scale-3

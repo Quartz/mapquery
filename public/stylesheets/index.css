@@ -195,6 +195,13 @@ select {
   width: 100%;
   text-align: center;
 }
+.examples-container {
+  margin-top: 100px;
+  width: 100%;
+}
+.example-scale {
+  text-align: center;
+}
 
 .radio-label {
   margin-left: 5px;
@@ -341,12 +348,4 @@ label.enabled span {
 .units {
   stroke: #999;
   fill: #ddd;
-}
-
-.arrow-labels {
-  font-family: 'AdelleSans-Bold', "Helvetica", Arial, sans-serif;
-}
-.scale-labels {
-  font-family: 'AdelleSans-Regular', 'Helvetica Neue', Arial, Helvetica, sans-serif;
-  font-size: 14px;
 }
