@@ -47,6 +47,7 @@ function getFeatureCollection(req, res, next) {
       var features = pgToFc(data,obj.table_metadata.fld_identifier);
       var mapScaleTranslate = getScaleTranslate(features,width,height,proj);
       obj.bounds = mapScaleTranslate.bounds;
+      obj.geoBounds = mapScaleTranslate.geoBounds;
       obj.scale = mapScaleTranslate.s;
       obj.translate = mapScaleTranslate.t;
       obj.projection = proj;
