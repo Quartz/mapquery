@@ -7,7 +7,7 @@
  * each of those output options together with real-world data to make a graphic.
  * 
  * To provide a full demo of each method, each section below is independent 
- * from the others, so you'll notice a lot of repition in each.
+ * from the others, so you'll notice a lot of repetition in each.
  * 
  * Static files used:
  * data/cb_2014_us_county_20m.svg is topojson data exported from mapquery
