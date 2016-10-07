@@ -40,7 +40,7 @@ if (app.get('env') === 'development') {
     .json({
       status: 'error',
       message: err.message,
-      error: err
+      error: JSON.stringify(err)
     });
   });
 }
@@ -52,7 +52,7 @@ app.use(function(err, req, res, next) {
   .json({
     status: 'error',
     message: err.message,
-    error: {}
+    error: JSON.stringify(err)
   });
 });
 

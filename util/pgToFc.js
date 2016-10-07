@@ -8,7 +8,7 @@ function pgToFc(queryResult,fld_identifier) {
       "features": []
     };
 
-  if (props.indexOf(fld_identifier) === -1) {
+  if (fld_identifier && props.indexOf(fld_identifier) === -1) {
     props.push(fld_identifier);
   }
 

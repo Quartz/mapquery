@@ -349,3 +349,8 @@ label.enabled span {
   stroke: #999;
   fill: #ddd;
 }
+
+.details {
+  stroke: #51b2e5;
+  fill: none;
+}
