@@ -52,6 +52,7 @@ function getFeatureCollection(req, res, next) {
       obj.translate = mapScaleTranslate.t;
       obj.projection = proj;
       obj.map = (datatype == "geojson") ? features : topojson.topology(features);
+      obj.detail = null;
       obj.isos = [];
       if (obj.table_metadata.fld_iso_alpha_3) {
         features.features.forEach(function(d){
@@ -60,20 +61,6 @@ function getFeatureCollection(req, res, next) {
         });
       }
 
-      // for bounding box search, not currently in use
-      var envelope = "@ ST_MakeEnvelope(";
-      envelope += mapScaleTranslate.geoBounds[0][0]+",";
-      envelope += mapScaleTranslate.geoBounds[0][1]+",";
-      envelope += mapScaleTranslate.geoBounds[1][0]+",";
-      envelope += mapScaleTranslate.geoBounds[1][1]+",4269)";
-      var sql = "select *, ST_AsGeoJSON(geom, 6) as jsongeom from ne_10m_railroads where geom "+envelope;
-
-      return db.any(sql);
-    })
-    .then(function (data) {
-      var features = pgToFc(data,null);
-      obj.detail = (datatype == "geojson") ? features : topojson.topology(features);
-      // obj.detail = data;
       res.status(200).json({
         status: 'success',
         message: 'Retrieved FeatureCollection with projection data',
@@ -84,6 +71,93 @@ function getFeatureCollection(req, res, next) {
       return next(err);
     });
 }
+
+
+/**
+ * Retrieve a locator map as FeatureCollection with sizing, positioning and projection data
+ *
+ * @param {Object} req
+ * @param {Object} res
+ * @param {Object} next
+ * @returns {Object} - See README.MD for response specification.
+ */
+function getLocatorMap(req, res, next) {
+  var table = req.query.table;
+  var field_value = null;
+  if (req.query.field_value) {
+    if (req.query.field_value !== "*") {
+      field_value = req.query.field_value.split(":");
+    }
+  }
+
+  // center point coordinates;
+  var place = req.query.place.split(":");
+  var lon = place[0];
+  var lat = place[1];
+  var latDistFromCenter = (1 / 110.54) * 5;
+  var lonDistFromCenter = (1 / (111.320 * Math.cos(+lat))) * 5;
+  console.log(lon)
+  console.log(lat)
+  console.log(latDistFromCenter)
+  console.log(lonDistFromCenter)
+  // left is the minimum longitude, bottom is the minimum latitude, right is maximum longitude, and top is the maximum latitude
+  var envelope = "@ ST_MakeEnvelope(";
+  envelope += +(+lon-lonDistFromCenter)+",";
+  envelope += +(+lat-latDistFromCenter)+",";
+  envelope += +(+lon+lonDistFromCenter)+",";
+  envelope += +(+lat+latDistFromCenter)+",4269)";
+
+  var width = req.query.width;
+  var height = req.query.height;
+  var proj = req.query.proj;
+  var datatype = req.query.datatype;
+  var obj = {};
+  db.one("select * from mqmeta where (table_name = '"+table+"')")
+    .then(function(data){
+      obj.table_metadata = data;
+
+      var sql = "select *, ST_AsGeoJSON(geom, 6) as jsongeom from "+table;
+      if (field_value) sql += " where("+field_value[0]+" = '"+field_value[1]+"')";
+      sql += " and geom "+envelope;
+
+      console.log(sql);
+
+      return db.any(sql);
+    })
+    .then(function (data) {
+      var features = pgToFc(data,obj.table_metadata.fld_identifier);
+      var mapScaleTranslate = getScaleTranslate(features,width,height,proj);
+      obj.bounds = mapScaleTranslate.bounds;
+      obj.geoBounds = mapScaleTranslate.geoBounds;
+      obj.scale = mapScaleTranslate.s;
+      obj.translate = mapScaleTranslate.t;
+      obj.projection = proj;
+      obj.map = (datatype == "geojson") ? features : topojson.topology(features);
+      obj.detail = null;
+      obj.isos = [];
+      if (obj.table_metadata.fld_iso_alpha_3) {
+        features.features.forEach(function(d){
+          if (d.properties[obj.table_metadata.fld_iso_alpha_3])
+            obj.isos.push(d.properties[obj.table_metadata.fld_iso_alpha_3])
+        });
+      }
+
+      // var features = pgToFc(data,null);
+      // obj.detail = (datatype == "geojson") ? features : topojson.topology(features);
+
+      res.status(200).json({
+        status: 'success',
+        message: 'Retrieved FeatureCollection locator map with projection data',
+        data: obj
+      });
+
+
+    })
+    .catch(function (err) {
+      return next(err);
+    });
+}
+
 
 /**
  * Retrieve a raw geometry collection
@@ -103,7 +177,7 @@ function getGeometry(req, res, next) {
     }
   }
   var sql = "select *, ST_AsGeoJSON(geom, 6) as jsongeom from "+table;
-  sql += (field_value) ? " where("+field_value[0]+" = '"+field_value[1]+"')" : "";
+  if (field_value) sql += " where("+field_value[0]+" = '"+field_value[1]+"')";
   db.any(sql)
     .then(function (data) {
       var obj = {};
@@ -150,6 +224,29 @@ function getAllTableData(req, res, next) {
 }
 
 /**
+ * Retrieve populated places
+ *
+ * @param {Object} req
+ * @param {Object} res
+ * @param {Object} next
+ * @returns {Object} - Selected populated places.
+ */
+function getPopulatedPlaces(req, res, next) {
+  var isoa3 = req.query.isoa3;
+  var sql = "select name, sov0name, adm1name, latitude, longitude from ne_10m_populated_places";
+  if (isoa3) sql += " where(adm0_a3 = '"+isoa3+"')";
+  db.any(sql)
+    .then(function (data) {
+      res.status(200).json({
+        data: data
+      });
+    })
+    .catch(function (err) {
+      return next(err);
+    });
+}
+
+/**
  * Retrieve unique values from a given table's name field, as well as any groupby fields specified in mqmeta
  *
  * @param {Object} req
@@ -165,14 +262,18 @@ function getTableUnits(req, res, next) {
   var units = {};
   db.one("select * from mqmeta where (table_name = '"+table+"')")
     .then(function (data) {
-      fld_name = data.fld_name;
       for (var i=1; i<=5; i++) {
         if (data["fld_groupby"+i]) {
           fld_groupby.push(data["fld_groupby"+i]);
           units[data["fld_groupby"+i]] = [];
         }
       }
+
+      fld_name = data.fld_name;
+      fld_iso_alpha_3 = data.fld_iso_alpha_3;
       units[fld_name] = [];
+      units[fld_iso_alpha_3] = [];
+
       return db.any("select * from "+table);
     })
     .then(function (data) {
@@ -180,6 +281,9 @@ function getTableUnits(req, res, next) {
         if (d[fld_name])
           if (units[fld_name].indexOf(d[fld_name]) === -1)
             units[fld_name].push(d[fld_name]);
+        if (d[fld_iso_alpha_3])
+          if (units[fld_iso_alpha_3].indexOf(d[fld_iso_alpha_3]) === -1)
+            units[fld_iso_alpha_3].push(d[fld_iso_alpha_3]);
         fld_groupby.forEach(function(fld){
           if (units[fld].indexOf(d[fld]) === -1)
             units[fld].push(d[fld]);
@@ -287,5 +391,7 @@ module.exports = {
   getTableUnits: getTableUnits,
   getAllTableData: getAllTableData,
   importMapData: importMapData,
-  saveMapData: saveMapData
+  saveMapData: saveMapData,
+  getPopulatedPlaces: getPopulatedPlaces,
+  getLocatorMap: getLocatorMap
 };

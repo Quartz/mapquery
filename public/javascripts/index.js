@@ -34,6 +34,12 @@ var tableUnitsEl = d3.select("#select2").append("select")
   .attr("id","table_units_select")
   .attr("name","table_units_select")
   .attr("class","searchable");
+
+var tablePlaceEl = d3.select("#select-place").append("select")
+  .attr("id","place_select")
+  .attr("name","place_select")
+  .attr("class","searchable");
+
 var projSelectEl = d3.select("#select3").append("select")
   .attr("id","projection_select")
   .attr("name","projection_select")
@@ -47,19 +53,18 @@ var projSelectEl = d3.select("#select3").append("select")
 var detailsDiv = d3.select("#details"),
   detailLabels,
   detailChecks,
-  detailSpan;
+  detailSpan,
+  unitVal,
+  url;
 
-var unitVal;
-
-var url;
-
-function loadData(table,field_value,proj,datatype) {
+function loadData(table,field_value,place,proj,datatype) {
   var proj = proj || "kavrayskiy7";
   unitVal = field_value.split(":")[1];
-  url = "/api/feature-collection?table="+table+"&field_value="+field_value+"&proj="+proj+"&width="+width+"&height="+height+"&datatype="+datatype;
+  url = (place) ? "/api/locator" : "/api/feature-collection";
+  var params = "?table="+table+"&field_value="+field_value+"&place="+place+"&proj="+proj+"&width="+width+"&height="+height+"&datatype="+datatype;
   queue()
     .defer(d3.json, "/api/table-data")
-    .defer(d3.json, url)
+    .defer(d3.json, url+params)
     .await(setData);
 }
 
@@ -128,11 +133,6 @@ function setData(err, tableData, mapData) {
     units = data.map.objects.features;
   }
 
-  var details = data.detail.features;
-  if ($("input:radio[name ='datatype']:checked").val() == "topojson") {
-    details = data.detail.objects.features;
-  }
-
   svg = d3.select(".map-preview").html("").append("svg:svg")
     .attr("id","map-svg")
     .attr("width", width)
@@ -154,11 +154,18 @@ function setData(err, tableData, mapData) {
     .attr("id",function(d) { return "u"+d.properties[uniqueFld]; })
     .attr("d", path);
 
-  svg.selectAll(".details")
-    .data(details)
-    .enter().append("path")
-    .attr("class","details")
-    .attr("d", path);
+  if (data.detail) {
+    var details = data.detail.features;
+    if ($("input:radio[name ='datatype']:checked").val() == "topojson") {
+      details = data.detail.objects.features;
+    }
+
+    svg.selectAll(".details")
+      .data(details)
+      .enter().append("path")
+      .attr("class","details")
+      .attr("d", path);
+  }
 
   d3.select("#urlstring").html(url)
 
@@ -167,17 +174,24 @@ function setData(err, tableData, mapData) {
     populateTableUnits(table);
   });
 
+  $("#table_units_select").on("change",function(){
+    populatePlacesSelect($(this).val());
+  });
+
   d3.select("#get-map").on("click",function(){
     var table = $("#table_select").val();
     var field_value = $("#table_units_select").val();
+    var place = $("#place_select").val();
     var proj = $("#projection_select").val();
     var datatype = $("input:radio[name ='datatype']:checked").val();
+
+    console.log(place);
     // collect checked details, not currently in use
     var detailArray = [];
     $(".detail-check").each(function(){
       if($(this).is(":checked")) detailArray.push($(this).attr("id"))
     });
-    loadData(table,field_value,proj,datatype);
+    loadData(table,field_value,place,proj,datatype);
   });
 
   d3.select("#download-svg").on("click",function() {
@@ -201,7 +215,6 @@ function populateTableUnits(table) {
 
   d3.json("/api/units-by-table?table="+table,function(error,tableUnits){
     var unitKeys = Object.keys(tableUnits);
-
     tableUnitsEl.selectAll(".unit-og")
       .data(unitKeys)
       .enter().append("optgroup")
@@ -217,7 +230,23 @@ function populateTableUnits(table) {
             .html(function(d){ return d });
         });
   });
+
 }
 
-loadData("ne_50m_admin_0_countries","","","geojson");
+function populatePlacesSelect(isoa3) {
+  tablePlaceEl.html("").append("option")
+    .attr("value","")
+    .html("Select a place");
+  d3.json("/api/populated-places?isoa3="+isoa3.split(":")[1],function(error,places){
+    tablePlaceEl.selectAll(".place-o")
+      .data(places.data)
+      .enter().append("option")
+      .attr("class","place-o")
+      .attr("value",function(d){ return d.longitude+":"+d.latitude })
+      .html(function(d){ return d.name+", "+d.adm1name+" "+d.sov0name;
+     });
+  });
+}
+
+loadData("ne_50m_admin_0_countries","","","","geojson");
 populateTableUnits("ne_50m_admin_0_countries");
