@@ -1,14 +1,14 @@
 /**
  * Three ways you can use Mapquery data
  *
- * The Mapquery search page allows you to output data in several ways. 
- * You can save an SVG, save raw map data, or use the API call Mapquery 
- * generates based on your search parameters. Here's how you might use 
+ * The Mapquery search page allows you to output data in several ways.
+ * You can save an SVG, save raw map data, or use the API call Mapquery
+ * generates based on your search parameters. Here's how you might use
  * each of those output options together with real-world data to make a graphic.
- * 
- * To provide a full demo of each method, each section below is independent 
+ *
+ * To provide a full demo of each method, each section below is independent
  * from the others, so you'll notice a lot of repetition in each.
- * 
+ *
  * Static files used:
  * data/cb_2014_us_county_20m.svg is topojson data exported from mapquery
  * data/cb_2014_us_county_20m.json is topojson data exported from mapquery
@@ -51,14 +51,14 @@ function staticSvg() {
       // loop through SVG's path elements
       var countyPaths = svg.selectAll("path")
         .each(function(d){
-          
-          // get the id from the path element, 
-          // which mapquery sets with a given dataset's 
+
+          // get the id from the path element,
+          // which mapquery sets with a given dataset's
           // unique identifier. in this case, fips code.
           // note that mapquery prepends a letter to the id,
           // which you should remove to get the code
           var id = d3.select(this).attr("id").substr(1);
-          
+
           // then look for matches between the fips code from the id
           // and the fips code in the data we've loaded
           // bind that datum when a match is found
@@ -100,12 +100,12 @@ function loadStaticData(err, mapData, workerData) {
   });
 
   // create a selector by the fips field in the census data
-  // fips is a five-digit unique ID for each county 
+  // fips is a five-digit unique ID for each county
   var dataByFips = d3.nest()
     .key(function(d){ return d.fips })
     .map(workerData);
 
-  // get the name of the field in our map data 
+  // get the name of the field in our map data
   // that is denoted as a unique identifier
   // in the metadata table.
   // in this case, we know it's fips, but this
@@ -143,9 +143,9 @@ function loadStaticData(err, mapData, workerData) {
 
 }
 
-// 
+//
 // Example 3: Load data directly from the API
-// 
+//
 
 // we're using queue to load our two static data files.
 // cb_2014_us_county_20m.json is topojson data exported from mapquery
@@ -170,7 +170,7 @@ function loadApiData(err, result, workerData) {
   });
 
   // create a selector by the fips field in the census data
-  // fips is a five-digit unique ID for each county 
+  // fips is a five-digit unique ID for each county
   var dataByFips = d3.nest()
     .key(function(d){ return d.fips })
     .map(workerData);
@@ -178,7 +178,7 @@ function loadApiData(err, result, workerData) {
   // grap the map data from the API result
   var mapData = result.data;
 
-  // get the name of the field in our map data 
+  // get the name of the field in our map data
   // that is denoted as a unique identifier
   // in the metadata table.
   // in this case, we know it's fips, but this
@@ -216,14 +216,100 @@ function loadApiData(err, result, workerData) {
 
 }
 
-// 
+
+// //
+// // Example 2: Load data from static topojson file
+// //
+//
+// // we're using queue to load our two static data files
+// queue()
+//   .defer(d3.json, "data/ne_50m_admin_0_countries.json")
+//   .defer(d3.csv, "data/ms804.csv")
+//   .await(loadFlight);
+//
+// function loadFlight(err, mapData, flightData) {
+//
+//   // append an svg
+//   var svg = d3.select("#map-4").append("svg:svg")
+//     .attr("id","map-4-svg")
+//     .attr("width", width)
+//     .attr("height", height);
+//
+//   // get the name of the field in our map data
+//   // that is denoted as a unique identifier
+//   // in the metadata table.
+//   // in this case, we know it's fips, but this
+//   // is how we can get the field dynamically
+//   var uniqueFld = (mapData.table_metadata.fld_identifier) ? mapData.table_metadata.fld_identifier : "name";
+//
+//   // setup the projection using the handy
+//   // metadata mapquery provided
+//   var projection = d3.geo[mapData.projection]()
+//     .scale(mapData.scale)
+//     .translate(mapData.translate);
+//
+//   var path = d3.geo.path()
+//     .projection(projection);
+//
+//   // explicitly select the toposon map units.
+//   // for geojson it would be in data.map.features
+//   var units = mapData.map.objects.features;
+//
+//   // append each county path
+//   svg.selectAll(".units-4")
+//     .data(units)
+//     .enter().append("path")
+//     .attr("class","units units-4")
+//     .attr("id",function(d) { return "u"+d.properties[uniqueFld]; })
+//     .attr("d", path);
+//
+//   var g = svg.append("g");
+//
+//   g.selectAll(".flightpath")
+//     .data(flightData)
+//     .enter().append("circle", ".flightpath")
+//     .attr("r", 0.5)
+//     .attr("transform", function(d) {
+//       return "translate(" + projection([
+//         d.Longitude,
+//         d.Latitude
+//       ]) + ")";
+//     });
+//
+//   var g2 = svg.append("g");
+//
+//   g2.append("circle", ".paris")
+//     .attr("r", 3)
+//     .attr("transform", function(d) {
+//       return "translate(" + projection([
+//         2.547930,
+//         49.009870
+//       ]) + ")";
+//     });
+//
+//   g2.append("circle", ".cairo")
+//     .attr("r", 3)
+//     .attr("transform", function(d) {
+//       return "translate(" + projection([
+//         31.396496,
+//         30.112802
+//       ]) + ")";
+//     });
+//
+// // paris 49.009870, 2.547930
+// // cairo 30.112802, 31.396496
+//
+// }
+
+
+//
 // Below we just call a nifty/weird little function
 // that dynamically creates and appends a key
 // to represent an arbitrary scale.
-// 
-// This is not part of the demo, but feel free 
+//
+// This is not part of the demo, but feel free
 // to try it out and let us know if you make improvements to it!
-// 
+//
 
 instaScale(color,600,"scale-1");
 instaScale(color,600,"scale-2");
@@ -275,9 +361,9 @@ function instaScale(colorScale,w,div) {
       .attr("class",div+"-labels")
       .attr("x", function(d,i) { if (i == 0) { return d.x0-5; } else { return d.x0-10; } })
       .attr("y",60)
-      .text(function(d,i){ 
+      .text(function(d,i){
         var l = Math.abs(colorScale.domain()[i-1]);
-        if (i == 0) { 
+        if (i == 0) {
           return "38% or less";
         } else if (i == colorScale.domain().length) {
           return l+"% or more";

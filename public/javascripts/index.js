@@ -1,8 +1,8 @@
-// 
+//
 // this is the js for the mapquery search page.
 // to see examples for using mapquery,
 // check out public/javascripts/examples.js instead
-// 
+//
 
 var projections = [
   "kavrayskiy7",
@@ -71,7 +71,7 @@ function setData(err, tableData, mapData) {
     .key(function(d){ return d.table_category })
     .map(tableData.data);
   var keys = Object.keys(byCategory);
-  
+
   // only load table select and detail checks first time
   if (tableSelectEl.selectAll(".table-og")[0].length == 0) {
     tableSelectEl.selectAll(".table-og")
@@ -95,7 +95,7 @@ function setData(err, tableData, mapData) {
     .data(byCategory["Detail"])
     .enter().append("label")
       .attr("class","detail-label");
-      
+
   detailChecks = detailLabels.append("input")
     .attr("type","checkbox")
     .attr("id",function(d){ return d.table_name })
@@ -128,11 +128,16 @@ function setData(err, tableData, mapData) {
     units = data.map.objects.features;
   }
 
+  var details = data.detail.features;
+  if ($("input:radio[name ='datatype']:checked").val() == "topojson") {
+    details = data.detail.objects.features;
+  }
+
   svg = d3.select(".map-preview").html("").append("svg:svg")
     .attr("id","map-svg")
     .attr("width", width)
     .attr("height", height);
-  
+
   if ($("#graticule").is(":checked")) {
     svg.append("path")
       .datum(graticule)
@@ -149,9 +154,14 @@ function setData(err, tableData, mapData) {
     .attr("id",function(d) { return "u"+d.properties[uniqueFld]; })
     .attr("d", path);
 
+  svg.selectAll(".details")
+    .data(details)
+    .enter().append("path")
+    .attr("class","details")
+    .attr("d", path);
 
   d3.select("#urlstring").html(url)
-  
+
   $("#table_select").on("change",function(){
     var table = $(this).val();
     populateTableUnits(table);
@@ -191,7 +201,7 @@ function populateTableUnits(table) {
 
   d3.json("/api/units-by-table?table="+table,function(error,tableUnits){
     var unitKeys = Object.keys(tableUnits);
-    
+
     tableUnitsEl.selectAll(".unit-og")
       .data(unitKeys)
       .enter().append("optgroup")

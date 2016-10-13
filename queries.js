@@ -40,7 +40,7 @@ function getFeatureCollection(req, res, next) {
     .then(function(data){
       obj.table_metadata = data;
       var sql = "select *, ST_AsGeoJSON(geom, 6) as jsongeom from "+table;
-      sql += (field_value) ? " where("+field_value[0]+" = '"+field_value[1]+"')" : "";
+      if (field_value) sql += " where("+field_value[0]+" = '"+field_value[1]+"')";
       return db.any(sql);
     })
     .then(function (data) {
@@ -66,8 +66,14 @@ function getFeatureCollection(req, res, next) {
       envelope += mapScaleTranslate.geoBounds[0][1]+",";
       envelope += mapScaleTranslate.geoBounds[1][0]+",";
       envelope += mapScaleTranslate.geoBounds[1][1]+",4269)";
-      var sql = "select * from ne_10m_railroads where geom "+envelope;
+      var sql = "select *, ST_AsGeoJSON(geom, 6) as jsongeom from ne_10m_railroads where geom "+envelope;
 
+      return db.any(sql);
+    })
+    .then(function (data) {
+      var features = pgToFc(data,null);
+      obj.detail = (datatype == "geojson") ? features : topojson.topology(features);
+      // obj.detail = data;
       res.status(200).json({
         status: 'success',
         message: 'Retrieved FeatureCollection with projection data',
@@ -172,7 +178,7 @@ function getTableUnits(req, res, next) {
     .then(function (data) {
       data.forEach(function(d){
         if (d[fld_name])
-          if (units[fld_name].indexOf(d[fld_name]) === -1) 
+          if (units[fld_name].indexOf(d[fld_name]) === -1)
             units[fld_name].push(d[fld_name]);
         fld_groupby.forEach(function(fld){
           if (units[fld].indexOf(d[fld]) === -1)
@@ -213,7 +219,7 @@ function importMapData(req,res,next) {
       }
       var objKeys = Object.keys(data[0]).sort();
       var objVals = [];
-      objKeys.forEach(function(key){ 
+      objKeys.forEach(function(key){
         var str = new String(data[0][key]).substr(0,20);
         objVals.push(str);
       });
@@ -232,7 +238,7 @@ function importMapData(req,res,next) {
         {fld:"fld_groupby4",name:"Group by 4"},
         {fld:"fld_groupby5",name:"Group by 5"}
       ];
-      res.render('import', { 
+      res.render('import', {
         title: "Mapquery Import",
         message: 'Imported table '+result.table_name+' as `temp`',
         data: result
@@ -263,7 +269,7 @@ function saveMapData(req, res, next) {
       req.body)
     })
     .then(function () {
-      res.render('import', { 
+      res.render('import', {
         title: "Mapquery Import",
         message: 'Created new table '+table_name+' and inserted table metadata to mqmeta',
         data: null
