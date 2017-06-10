@@ -36,12 +36,17 @@ function getFeatureCollection(req, res, next) {
   var proj = req.query.proj;
   var datatype = req.query.datatype;
   var obj = {};
-  db.one("select * from mqmeta where (table_name = '"+table+"')")
-    .then(function(data){
+  db.one('select * from mqmeta where table_name = $1', table)
+    .then(function(data) {
       obj.table_metadata = data;
-      var sql = "select *, ST_AsGeoJSON(geom, 6) as jsongeom from "+table;
-      sql += (field_value) ? " where("+field_value[0]+" = '"+field_value[1]+"')" : "";
-      return db.any(sql);
+      var sql = 'select *, ST_AsGeoJSON(geom, 6) as jsongeom from $1~';
+      var values = [table];
+      if(field_value) {
+        sql += ' where $2~ = $3';
+        values.push(field_value[0]);
+        values.push(field_value[1]);
+      }
+      return db.any(sql, values);
     })
     .then(function (data) {
       var features = pgToFc(data,obj.table_metadata.fld_identifier);
@@ -96,9 +101,14 @@ function getGeometry(req, res, next) {
       field_value = req.query.field_value.split(":");
     }
   }
-  var sql = "select *, ST_AsGeoJSON(geom, 6) as jsongeom from "+table;
-  sql += (field_value) ? " where("+field_value[0]+" = '"+field_value[1]+"')" : "";
-  db.any(sql)
+  var sql = 'select *, ST_AsGeoJSON(geom, 6) as jsongeom from $1~';
+  var values = [table];
+  if(field_value) {
+    sql += ' where $2~ = $3';
+    values.push(field_value[0]);
+    values.push(field_value[1]);
+  }
+  db.any(sql, values)
     .then(function (data) {
       var obj = {};
       obj.type = "Topology";
@@ -157,7 +167,7 @@ function getTableUnits(req, res, next) {
   var fld_iso_alpha_3;
   var fld_groupby = [];
   var units = {};
-  db.one("select * from mqmeta where (table_name = '"+table+"')")
+  db.one('select * from mqmeta where table_name = $1', table)
     .then(function (data) {
       fld_name = data.fld_name;
       for (var i=1; i<=5; i++) {
@@ -167,7 +177,7 @@ function getTableUnits(req, res, next) {
         }
       }
       units[fld_name] = [];
-      return db.any("select * from "+table);
+      return db.any('select * from $1~', table);
     })
     .then(function (data) {
       data.forEach(function(d){
@@ -253,9 +263,9 @@ function importMapData(req,res,next) {
  */
 function saveMapData(req, res, next) {
   var table_name = req.body.table_name;
-  db.none("alter table temp rename to "+table_name)
+  db.none('alter table temp rename to $1~', table_name)
     .then(function () {
-      return db.none("alter index if exists temp_geom_idx rename to "+table_name+"_geom_idx")
+      return db.none('alter index if exists temp_geom_idx rename to $1~', table_name + '_geom_idx')
     })
     .then(function () {
       return db.none('insert into mqmeta(table_name,table_name_readable,table_description,table_category,table_resolution,table_source,table_source_url,fld_iso_alpha_3,fld_name,fld_groupby1,fld_groupby2,fld_groupby3,fld_groupby4,fld_groupby5,fld_identifier)' +
